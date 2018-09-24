@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <string>
+#include "json.h"
 
 using namespace std;
 
@@ -42,7 +43,18 @@ static wstring utf8_to_utf16(const string& s) {
 }
 
 extern "C" __declspec(dllexport) BSTR JSON_PRETTY(WCHAR* in) {
-	string s = u8"Lémon curry? ("s + utf16_to_utf8(in) + ")";
+	json j;
+
+	if (!in)
+		return nullptr;
+
+	try {
+		j.parse(utf16_to_utf8(in));
+	} catch (...) {
+		return nullptr;
+	}
+
+	string s = j.to_string(true);
 
 	return SysAllocString(utf8_to_utf16(s).c_str());
 }

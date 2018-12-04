@@ -24,6 +24,10 @@ public:
 	json() {
 	}
 
+	json(nullptr_t) {
+		type = json_class_type::null;
+	}
+
 	json(const string& s) : type(json_class_type::string), strval(s) { }
 	json(long long l);
 	json(double d);
@@ -70,11 +74,12 @@ public:
 	operator signed long long() const;
 	operator int() const;
 	operator unsigned int() const;
-	operator bool() const;
+	explicit operator bool() const;
 	operator double() const;
 	void parse(const string& s);
 	unsigned int count(const string& n) const;
 	vector<string> keys() const;
+	const vector<json>& values() const;
 	void obj_reserve(unsigned int l);
 	void arr_reserve(unsigned int l);
 	void emplace(const string& n, const json& j);

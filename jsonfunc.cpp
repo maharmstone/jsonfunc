@@ -59,6 +59,45 @@ extern "C" __declspec(dllexport) BSTR JSON_PRETTY(WCHAR* in) {
 	return SysAllocString(utf8_to_utf16(s).c_str());
 }
 
+extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
+	json j;
+
+	if (!in)
+		return nullptr;
+
+	try {
+		j.parse(utf16_to_utf8(in));
+	} catch (...) {
+		return nullptr;
+	}
+
+	if (j.type != json_class_type::array)
+		return nullptr;
+
+	json ret;
+	string sv;
+	const vector<json>& v = j.values();
+
+	ret.arr_reserve(0);
+	for (const auto& el : v) {
+		if (sv == "") {
+			vector<string> k = el.keys();
+
+			if (!k.empty())
+				sv = k[0];
+		}
+
+		if (sv != "" && el.count(sv) > 0)
+			ret.push_back(el[sv]);
+		else
+			ret.push_back(nullptr);
+	}
+
+	string s = ret.to_string(false);
+
+	return SysAllocString(utf8_to_utf16(s).c_str());
+}
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 	return TRUE;
 }

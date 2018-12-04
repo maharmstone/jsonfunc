@@ -398,3 +398,7 @@ void json::erase(const string& n) {
 		}
 	}
 }
+
+const vector<json>& json::values() const {
+	return maplist_values;
+}

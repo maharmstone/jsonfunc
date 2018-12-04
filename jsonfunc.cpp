@@ -63,7 +63,7 @@ extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
 	json j;
 
 	if (!in)
-		return nullptr;
+		return SysAllocString(L"[]");
 
 	try {
 		j.parse(utf16_to_utf8(in));

@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <string>
 #include "json.h"
+#include "git.h"
 
 using namespace std;
 
@@ -94,6 +95,31 @@ extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
 	}
 
 	string s = ret.to_string(false);
+
+	return SysAllocString(utf8_to_utf16(s).c_str());
+}
+
+extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) {
+	string repodir = utf16_to_utf8(repodirw);
+	string fn = utf16_to_utf8(fnw);
+	string s;
+
+	git_libgit2_init();
+
+	try {
+		GitRepo repo(repodir);
+
+		GitTree tree(repo, "HEAD");
+
+		GitBlob blob(tree, fn);
+
+		s = blob;
+	} catch (...) {
+		git_libgit2_shutdown();
+		return nullptr;
+	}
+
+	git_libgit2_shutdown();
 
 	return SysAllocString(utf8_to_utf16(s).c_str());
 }

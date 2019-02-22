@@ -124,6 +124,45 @@ extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) {
 	return SysAllocString(utf8_to_utf16(s).c_str());
 }
 
+extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) {
+	json j;
+
+	if (!jsonw || !sepw)
+		return nullptr;
+
+	string sep = utf16_to_utf8(sepw);
+
+	try {
+		j.parse(utf16_to_utf8(jsonw));
+	} catch (...) {
+		return nullptr;
+	}
+
+	if (j.type != json_class_type::array)
+		return nullptr;
+
+	string ret, sv;
+	const vector<json>& v = j.values();
+
+	for (const auto& el : v) {
+		if (sv == "") {
+			vector<string> k = el.keys();
+
+			if (!k.empty())
+				sv = k[0];
+		}
+
+		if (el.count(sv) > 0) {
+			if (!ret.empty())
+				ret += sep;
+
+			ret += el[sv];
+		}
+	}
+
+	return SysAllocString(utf8_to_utf16(ret).c_str());
+}
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 	return TRUE;
 }

@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <string>
+#include <stdexcept>
 #include "json.h"
 #include "git.h"
 

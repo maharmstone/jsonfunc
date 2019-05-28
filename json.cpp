@@ -1,4 +1,5 @@
 #include "json.h"
+#include <stdexcept>
 
 using namespace std;
 

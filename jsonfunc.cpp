@@ -6,7 +6,7 @@
 
 using namespace std;
 
-static string utf16_to_utf8(const wstring& ws) {
+string utf16_to_utf8(const wstring& ws) {
 	int len;
 	string s;
 
@@ -25,7 +25,7 @@ static string utf16_to_utf8(const wstring& ws) {
 	return s;
 }
 
-static wstring utf8_to_utf16(const string& s) {
+wstring utf8_to_utf16(const string& s) {
 	int len;
 	wstring wstr;
 

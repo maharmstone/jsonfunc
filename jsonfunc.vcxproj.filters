@@ -24,6 +24,9 @@
     <ClCompile Include="git.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="format-term.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="json.h">

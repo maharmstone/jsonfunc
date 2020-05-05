@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <string>
 #include <stdexcept>
+#include <sstream>
 #include <nlohmann/json.hpp>
 #include "git.h"
 
@@ -157,7 +158,9 @@ extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) {
 	wstring ws;
 
 	try {
-		string ret, sv;
+		stringstream ret;
+		bool first = true;
+		string sv;
 
 		for (const auto& el : j) {
 			if (sv.empty()) {
@@ -166,15 +169,16 @@ extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) {
 			}
 
 			if (el.count(sv) != 0) {
-				if (!ret.empty())
-					ret += sep;
+				if (!first)
+					ret << sep;
 
-				ret += el.at(sv);
+				ret << el.at(sv);
+				first = false;
 			}
 		}
 
-		ws = utf8_to_utf16(ret);
-	} catch (...) {
+		ws = utf8_to_utf16(ret.str());
+	} catch (const exception& e) {
 		return nullptr;
 	}
 

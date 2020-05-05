@@ -6,40 +6,40 @@
 
 using namespace std;
 
-string utf16_to_utf8(const wstring& ws) {
+string utf16_to_utf8(const wstring_view& ws) {
 	int len;
 	string s;
 
 	if (ws == L"")
 		return "";
 
-	len = WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), ws.length(), NULL, 0, NULL, NULL);
+	len = WideCharToMultiByte(CP_UTF8, 0, ws.data(), ws.length(), NULL, 0, NULL, NULL);
 
 	if (len == 0)
 		return "";
 
 	s = string(len, ' ');
 
-	WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), ws.length(), (char*)s.c_str(), len, NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, ws.data(), ws.length(), (char*)s.c_str(), len, NULL, NULL);
 
 	return s;
 }
 
-wstring utf8_to_utf16(const string& s) {
+wstring utf8_to_utf16(const string_view& s) {
 	int len;
 	wstring wstr;
 
 	if (s == "")
 		return L"";
 
-	len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0);
+	len = MultiByteToWideChar(CP_UTF8, 0, s.data(), s.length(), NULL, 0);
 
 	if (len == 0)
 		return L"";
 
 	wstr = wstring(len, ' ');
 
-	MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), (WCHAR*)wstr.c_str(), len);
+	MultiByteToWideChar(CP_UTF8, 0, s.data(), s.length(), (WCHAR*)wstr.c_str(), len);
 
 	return wstr;
 }

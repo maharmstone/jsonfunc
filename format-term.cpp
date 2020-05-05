@@ -5,8 +5,8 @@
 
 using namespace std;
 
-wstring utf8_to_utf16(const string& s);
-string utf16_to_utf8(const wstring& ws);
+wstring utf8_to_utf16(const string_view& s);
+string utf16_to_utf8(const wstring_view& ws);
 
 typedef struct {
 	string_view code;

@@ -173,7 +173,7 @@ extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) noex
 		}
 
 		ws = utf8_to_utf16(ret.str());
-	} catch (const exception& e) {
+	} catch (...) {
 		return nullptr;
 	}
 

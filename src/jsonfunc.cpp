@@ -109,13 +109,15 @@ extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) noexcept {
 }
 
 extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) noexcept {
-	auto repodir = utf16_to_utf8((char16_t*)repodirw);
-    auto fn = utf16_to_utf8((char16_t*)fnw);
-	string s;
+	u16string ws;
 
 	git_libgit2_init();
 
 	try {
+		auto repodir = utf16_to_utf8((char16_t*)repodirw);
+		auto fn = utf16_to_utf8((char16_t*)fnw);
+		string s;
+
 		GitRepo repo(repodir);
 
 		GitTree tree(repo, "HEAD");
@@ -123,6 +125,8 @@ extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) noex
 		GitBlob blob(tree, fn);
 
 		s = blob;
+
+        ws = utf8_to_utf16(s);
 	} catch (...) {
 		git_libgit2_shutdown();
 		return nullptr;
@@ -130,7 +134,7 @@ extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) noex
 
 	git_libgit2_shutdown();
 
-	return bstr(utf8_to_utf16(s));
+	return bstr(ws);
 }
 
 extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) noexcept {

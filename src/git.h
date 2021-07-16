@@ -16,7 +16,7 @@ class GitSignature {
 
 public:
 	GitSignature(const string& user, const string& email);
-	GitSignature::GitSignature(const string& user, const string& email, time_t dt, signed int offset);
+	GitSignature(const string& user, const string& email, time_t dt, signed int offset);
 	~GitSignature();
 
 private:

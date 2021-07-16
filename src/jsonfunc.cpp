@@ -1,5 +1,4 @@
-#include <windows.h>
-#include <string>
+#include "jsonfunc.h"
 #include <stdexcept>
 #include <sstream>
 #include <nlohmann/json.hpp>
@@ -28,31 +27,27 @@ string utf16_to_utf8(const wstring_view& ws) {
 	return s;
 }
 
-wstring utf8_to_utf16(const string_view& s) {
+u16string utf8_to_utf16(const string_view& s) {
 	int len;
-	wstring wstr;
+	u16string wstr;
 
 	if (s == "")
-		return L"";
+		return u"";
 
 	len = MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.length(), NULL, 0);
 
 	if (len == 0)
-		return L"";
+		return u"";
 
-	wstr = wstring(len, ' ');
+	wstr = u16string(len, ' ');
 
 	MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.length(), (WCHAR*)wstr.c_str(), len);
 
 	return wstr;
 }
 
-static BSTR __inline bstr(const wstring& ws) {
-	return SysAllocStringLen(ws.data(), (UINT)ws.length());
-}
-
 extern "C" __declspec(dllexport) BSTR JSON_PRETTY(WCHAR* in) {
-	wstring ws;
+	u16string ws;
 
 	if (!in)
 		return nullptr;
@@ -74,7 +69,7 @@ extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
 	json j;
 
 	if (!in)
-		return bstr(L"[]");
+		return bstr(u"[]");
 
 	try {
 		j = json::parse(utf16_to_utf8(in));
@@ -85,7 +80,7 @@ extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
 	if (j.type() != json::value_t::array)
 		return nullptr;
 
-	wstring ws;
+	u16string ws;
 
 	try {
 		json ret{json::array()};
@@ -155,7 +150,7 @@ extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) {
 	if (j.type() != json::value_t::array)
 		return nullptr;
 
-	wstring ws;
+	u16string ws;
 
 	try {
 		stringstream ret;

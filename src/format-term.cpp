@@ -1,12 +1,8 @@
-#include <windows.h>
-#include <string>
+#include "jsonfunc.h"
 #include <list>
 #include <vector>
 
 using namespace std;
-
-wstring utf8_to_utf16(const string_view& s);
-string utf16_to_utf8(const wstring_view& ws);
 
 typedef struct {
 	string_view code;
@@ -136,5 +132,5 @@ extern "C" __declspec(dllexport) BSTR TERM2HTML(WCHAR* inw) {
 			s += xml_escape(b.text);
 	}
 
-	return SysAllocString(utf8_to_utf16(s).c_str());
+	return bstr(utf8_to_utf16(s));
 }

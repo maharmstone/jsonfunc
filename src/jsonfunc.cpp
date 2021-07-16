@@ -46,7 +46,7 @@ u16string utf8_to_utf16(const string_view& s) {
 	return wstr;
 }
 
-extern "C" __declspec(dllexport) BSTR JSON_PRETTY(WCHAR* in) {
+extern "C" __declspec(dllexport) BSTR JSON_PRETTY(WCHAR* in) noexcept {
 	u16string ws;
 
 	if (!in)
@@ -65,7 +65,7 @@ extern "C" __declspec(dllexport) BSTR JSON_PRETTY(WCHAR* in) {
 	return bstr(ws);
 }
 
-extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
+extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) noexcept {
 	json j;
 
 	if (!in)
@@ -108,7 +108,7 @@ extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
 	return bstr(ws);
 }
 
-extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) {
+extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) noexcept {
 	auto repodir = utf16_to_utf8((char16_t*)repodirw);
     auto fn = utf16_to_utf8((char16_t*)fnw);
 	string s;
@@ -133,7 +133,7 @@ extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) {
 	return bstr(utf8_to_utf16(s));
 }
 
-extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) {
+extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) noexcept {
 	json j;
 
 	if (!jsonw || !sepw)

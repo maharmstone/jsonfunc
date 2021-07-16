@@ -26,7 +26,7 @@ static string xml_escape(const string_view& sv) {
 	return s;
 }
 
-extern "C" __declspec(dllexport) BSTR TERM2HTML(WCHAR* inw) {
+extern "C" __declspec(dllexport) BSTR TERM2HTML(WCHAR* inw) noexcept {
 	if (!inw)
 		return nullptr;
 

@@ -30,7 +30,7 @@ extern "C" __declspec(dllexport) BSTR TERM2HTML(WCHAR* inw) {
 	if (!inw)
 		return nullptr;
 
-	string in = utf16_to_utf8(inw);
+	auto in = utf16_to_utf8((char16_t*)inw);
 
 	bool in_code = false;
 	size_t last_text_start = 0, code_start = 0;

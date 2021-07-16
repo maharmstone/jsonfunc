@@ -8,21 +8,21 @@ using json = nlohmann::json;
 
 using namespace std;
 
-string utf16_to_utf8(const wstring_view& ws) {
+string utf16_to_utf8(const u16string_view& ws) {
 	int len;
 	string s;
 
-	if (ws == L"")
+	if (ws.empty())
 		return "";
 
-	len = WideCharToMultiByte(CP_UTF8, 0, ws.data(), (int)ws.length(), NULL, 0, NULL, NULL);
+	len = WideCharToMultiByte(CP_UTF8, 0, (WCHAR*)ws.data(), (int)ws.length(), NULL, 0, NULL, NULL);
 
 	if (len == 0)
 		return "";
 
 	s = string(len, ' ');
 
-	WideCharToMultiByte(CP_UTF8, 0, ws.data(), (int)ws.length(), (char*)s.c_str(), len, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, (WCHAR*)ws.data(), (int)ws.length(), (char*)s.c_str(), len, NULL, NULL);
 
 	return s;
 }
@@ -53,7 +53,7 @@ extern "C" __declspec(dllexport) BSTR JSON_PRETTY(WCHAR* in) {
 		return nullptr;
 
 	try {
-		auto j = json::parse(utf16_to_utf8(in));
+		auto j = json::parse(utf16_to_utf8((char16_t*)in));
 
 		string s = j.dump(3);
 
@@ -72,7 +72,7 @@ extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
 		return bstr(u"[]");
 
 	try {
-		j = json::parse(utf16_to_utf8(in));
+		j = json::parse(utf16_to_utf8((char16_t*)in));
 	} catch (...) {
 		return nullptr;
 	}
@@ -109,8 +109,8 @@ extern "C" __declspec(dllexport) BSTR JSON_ARRAY(WCHAR* in) {
 }
 
 extern "C" __declspec(dllexport) BSTR git_file(WCHAR* repodirw, WCHAR* fnw) {
-	string repodir = utf16_to_utf8(repodirw);
-	string fn = utf16_to_utf8(fnw);
+	auto repodir = utf16_to_utf8((char16_t*)repodirw);
+    auto fn = utf16_to_utf8((char16_t*)fnw);
 	string s;
 
 	git_libgit2_init();
@@ -139,10 +139,10 @@ extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) {
 	if (!jsonw || !sepw)
 		return nullptr;
 
-	string sep = utf16_to_utf8(sepw);
+	auto sep = utf16_to_utf8((char16_t*)sepw);
 
 	try {
-		j = json::parse(utf16_to_utf8(jsonw));
+		j = json::parse(utf16_to_utf8((char16_t*)jsonw));
 	} catch (...) {
 		return nullptr;
 	}

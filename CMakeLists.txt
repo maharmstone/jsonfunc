@@ -5,7 +5,7 @@ include(CMakePackageConfigHelpers)
 
 project(jsonfunc)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
@@ -13,7 +13,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 set(SRC_FILES src/jsonfunc.cpp
     src/git.cpp
-    src/format-term.cpp)
+    src/format-term.cpp
+    src/xml-reader.cpp)
 
 add_library(jsonfunc SHARED ${SRC_FILES})
 

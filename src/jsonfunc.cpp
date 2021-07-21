@@ -3,6 +3,7 @@
 #include <sstream>
 #include <nlohmann/json.hpp>
 #include "git.h"
+#include "xml.h"
 
 using json = nlohmann::json;
 
@@ -177,6 +178,56 @@ extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) noex
 		}
 
 		ws = utf8_to_utf16(ret.str());
+	} catch (...) {
+		return nullptr;
+	}
+
+	return bstr(ws);
+}
+
+extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
+	u16string ws;
+
+	if (!in)
+		return nullptr;
+
+	try {
+		auto inu = utf16_to_utf8((char16_t*)in);
+		xml_reader r(inu);
+		string s;
+		string prefix;
+
+		s.reserve(inu.length());
+
+		while (r.read()) {
+			switch (r.node_type()) {
+				case xml_node::whitespace:
+					// skip
+					break;
+
+				case xml_node::element:
+					s += prefix;
+					s += r.raw();
+
+					if (!r.is_empty())
+						prefix += "    ";
+
+					break;
+
+				case xml_node::end_element:
+					s += prefix;
+					s += r.raw();
+					s += "\n";
+					prefix.erase(prefix.length() - 4);
+					break;
+
+				default:
+					s += r.raw();
+					break;
+			}
+		}
+
+		ws = utf8_to_utf16(s);
 	} catch (...) {
 		return nullptr;
 	}

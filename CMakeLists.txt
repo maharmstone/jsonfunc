@@ -16,8 +16,10 @@ set(SRC_FILES src/jsonfunc.cpp
 add_library(jsonfunc SHARED ${SRC_FILES})
 
 find_package(libgit2 REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 target_link_libraries(jsonfunc libgit2)
+target_link_libraries(jsonfunc nlohmann_json::nlohmann_json)
 
 target_compile_options(jsonfunc PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:

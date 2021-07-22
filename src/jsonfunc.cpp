@@ -1,6 +1,7 @@
 #include "jsonfunc.h"
 #include <stdexcept>
 #include <sstream>
+#include <stack>
 #include <nlohmann/json.hpp>
 #include "git.h"
 #include "xml.h"
@@ -196,6 +197,8 @@ extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 		xml_reader r(inu);
 		string s;
 		string prefix;
+		bool needs_newline = false;
+		stack<bool> has_text;
 
 		s.reserve(inu.length());
 
@@ -206,22 +209,54 @@ extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 					break;
 
 				case xml_node::element:
-					s += prefix;
+					if (needs_newline) {
+						s += "\n";
+						needs_newline = false;
+					}
+
+					if (has_text.empty() || !has_text.top())
+						s += prefix;
+
 					s += r.raw();
 
-					if (!r.is_empty())
+					if (!r.is_empty()) {
 						prefix += "    ";
+						needs_newline = true;
+						has_text.push(false);
+					} else
+						s += "\n";
 
 					break;
 
 				case xml_node::end_element:
-					s += prefix;
-					s += r.raw();
-					s += "\n";
+					if (needs_newline) {
+						s += "\n";
+						needs_newline = false;
+					}
+
 					prefix.erase(prefix.length() - 4);
+
+					if (!has_text.top())
+						s += prefix;
+					s += r.raw();
+					has_text.pop();
+
+					if (has_text.empty() || !has_text.top())
+						s += "\n";
+					break;
+
+				case xml_node::text:
+					needs_newline = false;
+					has_text.top() = true;
+					s += r.raw();
 					break;
 
 				default:
+					if (needs_newline) {
+						s += "\n";
+						needs_newline = false;
+					}
+
 					s += r.raw();
 					break;
 			}

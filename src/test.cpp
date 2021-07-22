@@ -64,7 +64,7 @@ static void test(const string_view& s) {
 }
 
 int main() {
-	test("<a><b /></a>");
+	test("<a><b /><c att=\"value\">text</c><d><e></e></d><f>hel<b>lo wor</b>ld</f><g><h/>text</g></a>");
 
 	return 0;
 }

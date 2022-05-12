@@ -9,7 +9,7 @@ typedef struct {
 	string_view text;
 } text_bit;
 
-static string xml_escape(const string_view& sv) {
+static string xml_escape(string_view sv) {
 	string s;
 
 	for (const auto& c : sv) {

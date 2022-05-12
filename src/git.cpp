@@ -7,7 +7,7 @@ using namespace std;
 
 class git_exception : public exception {
 public:
-	git_exception(int error, const string_view& func) {
+	git_exception(int error, string_view func) {
 		auto lg2err = git_error_last();
 
 		if (lg2err && lg2err->message)

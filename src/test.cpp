@@ -6,7 +6,7 @@ extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept;
 
 using namespace std;
 
-static string utf16_to_utf8(const u16string_view& ws) {
+static string utf16_to_utf8(u16string_view ws) {
 	int len;
 	string s;
 
@@ -25,7 +25,7 @@ static string utf16_to_utf8(const u16string_view& ws) {
 	return s;
 }
 
-static u16string utf8_to_utf16(const string_view& s) {
+static u16string utf8_to_utf16(string_view s) {
 	int len;
 	u16string wstr;
 
@@ -44,7 +44,7 @@ static u16string utf8_to_utf16(const string_view& s) {
 	return wstr;
 }
 
-static void test(const string_view& s) {
+static void test(string_view s) {
 	auto w = utf8_to_utf16(s);
 
 	cout << s << " -> ";

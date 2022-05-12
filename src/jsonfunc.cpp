@@ -10,7 +10,7 @@ using json = nlohmann::json;
 
 using namespace std;
 
-string utf16_to_utf8(const u16string_view& ws) {
+string utf16_to_utf8(u16string_view ws) {
 	int len;
 	string s;
 
@@ -29,7 +29,7 @@ string utf16_to_utf8(const u16string_view& ws) {
 	return s;
 }
 
-u16string utf8_to_utf16(const string_view& s) {
+u16string utf8_to_utf16(string_view s) {
 	int len;
 	u16string wstr;
 

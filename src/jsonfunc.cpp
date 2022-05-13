@@ -1,7 +1,6 @@
 #include "jsonfunc.h"
 #include <stdexcept>
 #include <sstream>
-#include <stack>
 #include <nlohmann/json.hpp>
 #include "git.h"
 #include "xml.h"
@@ -191,7 +190,7 @@ static string xml_pretty2(string_view inu) {
 	string s;
 	string prefix;
 	bool needs_newline = false;
-	stack<bool> has_text;
+	vector<int> has_text;
 
 	s.reserve(inu.length());
 
@@ -207,7 +206,7 @@ static string xml_pretty2(string_view inu) {
 					needs_newline = false;
 				}
 
-				if (has_text.empty() || !has_text.top())
+				if (has_text.empty() || !has_text.back())
 					s += prefix;
 
 				s += r.raw();
@@ -215,7 +214,7 @@ static string xml_pretty2(string_view inu) {
 				if (!r.is_empty()) {
 					prefix += "    ";
 					needs_newline = true;
-					has_text.push(false);
+					has_text.push_back(0);
 				} else
 					s += "\n";
 
@@ -229,18 +228,18 @@ static string xml_pretty2(string_view inu) {
 
 				prefix.erase(prefix.length() - 4);
 
-				if (!has_text.top())
+				if (!has_text.back())
 					s += prefix;
 				s += r.raw();
-				has_text.pop();
+				has_text.pop_back();
 
-				if (has_text.empty() || !has_text.top())
+				if (has_text.empty() || !has_text.back())
 					s += "\n";
 				break;
 
 			case xml_node::text:
 				needs_newline = false;
-				has_text.top() = true;
+				has_text.back() = 1;
 				s += r.raw();
 				break;
 

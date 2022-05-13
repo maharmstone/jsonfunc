@@ -239,7 +239,10 @@ static constexpr string xml_pretty2(string_view inu) {
 
 			case xml_node::text:
 				needs_newline = false;
-				has_text.back() = 1;
+
+				if (!has_text.empty())
+					has_text.back() = 1;
+
 				s += r.raw();
 				break;
 
@@ -279,6 +282,7 @@ static_assert(xml_pretty2("<a></a>") == "<a>\n</a>\n");
 static_assert(xml_pretty2("<?xml version=\"1.0\"?><a></a>") == "<?xml version=\"1.0\"?>\n<a>\n</a>\n");
 static_assert(xml_pretty2("<a>\n\n<b> a </b>\t\n</a>") == "<a>\n    <b> a </b>\n</a>\n");
 static_assert(xml_pretty2("<a>\n\n<b>  \t  </b>\t\n</a>") == "<a>\n    <b>\n    </b>\n</a>\n");
+static_assert(xml_pretty2("\xef\xbb\xbf<a>\n\n<b>  \t  </b>\t\n</a>") == "\xef\xbb\xbf<a>\n    <b>\n    </b>\n</a>\n"); // BOM
 
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;

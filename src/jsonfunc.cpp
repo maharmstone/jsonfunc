@@ -243,6 +243,11 @@ static constexpr string xml_pretty2(string_view inu) {
 				s += r.raw();
 				break;
 
+			case xml_node::processing_instruction:
+				s += r.raw();
+				s += "\n";
+				break;
+
 			default:
 				if (needs_newline) {
 					s += "\n";
@@ -271,6 +276,7 @@ text</g>
 </a>
 )");
 static_assert(xml_pretty2("<a></a>") == "<a>\n</a>\n");
+static_assert(xml_pretty2("<?xml version=\"1.0\"?><a></a>") == "<?xml version=\"1.0\"?>\n<a>\n</a>\n");
 
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;

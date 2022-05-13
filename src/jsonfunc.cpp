@@ -186,6 +186,78 @@ extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) noex
 	return bstr(ws);
 }
 
+static string xml_pretty2(string_view inu) {
+	xml_reader r(inu);
+	string s;
+	string prefix;
+	bool needs_newline = false;
+	stack<bool> has_text;
+
+	s.reserve(inu.length());
+
+	while (r.read()) {
+		switch (r.node_type()) {
+			case xml_node::whitespace:
+				// skip
+				break;
+
+			case xml_node::element:
+				if (needs_newline) {
+					s += "\n";
+					needs_newline = false;
+				}
+
+				if (has_text.empty() || !has_text.top())
+					s += prefix;
+
+				s += r.raw();
+
+				if (!r.is_empty()) {
+					prefix += "    ";
+					needs_newline = true;
+					has_text.push(false);
+				} else
+					s += "\n";
+
+				break;
+
+			case xml_node::end_element:
+				if (needs_newline) {
+					s += "\n";
+					needs_newline = false;
+				}
+
+				prefix.erase(prefix.length() - 4);
+
+				if (!has_text.top())
+					s += prefix;
+				s += r.raw();
+				has_text.pop();
+
+				if (has_text.empty() || !has_text.top())
+					s += "\n";
+				break;
+
+			case xml_node::text:
+				needs_newline = false;
+				has_text.top() = true;
+				s += r.raw();
+				break;
+
+			default:
+				if (needs_newline) {
+					s += "\n";
+					needs_newline = false;
+				}
+
+				s += r.raw();
+				break;
+		}
+	}
+
+	return s;
+}
+
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;
 
@@ -194,75 +266,8 @@ extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 
 	try {
 		auto inu = utf16_to_utf8((char16_t*)in);
-		xml_reader r(inu);
-		string s;
-		string prefix;
-		bool needs_newline = false;
-		stack<bool> has_text;
 
-		s.reserve(inu.length());
-
-		while (r.read()) {
-			switch (r.node_type()) {
-				case xml_node::whitespace:
-					// skip
-					break;
-
-				case xml_node::element:
-					if (needs_newline) {
-						s += "\n";
-						needs_newline = false;
-					}
-
-					if (has_text.empty() || !has_text.top())
-						s += prefix;
-
-					s += r.raw();
-
-					if (!r.is_empty()) {
-						prefix += "    ";
-						needs_newline = true;
-						has_text.push(false);
-					} else
-						s += "\n";
-
-					break;
-
-				case xml_node::end_element:
-					if (needs_newline) {
-						s += "\n";
-						needs_newline = false;
-					}
-
-					prefix.erase(prefix.length() - 4);
-
-					if (!has_text.top())
-						s += prefix;
-					s += r.raw();
-					has_text.pop();
-
-					if (has_text.empty() || !has_text.top())
-						s += "\n";
-					break;
-
-				case xml_node::text:
-					needs_newline = false;
-					has_text.top() = true;
-					s += r.raw();
-					break;
-
-				default:
-					if (needs_newline) {
-						s += "\n";
-						needs_newline = false;
-					}
-
-					s += r.raw();
-					break;
-			}
-		}
-
-		ws = utf8_to_utf16(s);
+		ws = utf8_to_utf16(xml_pretty2(inu));
 	} catch (...) {
 		return nullptr;
 	}

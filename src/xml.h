@@ -171,6 +171,7 @@ private:
 	}
 
 	template<typename T>
+	requires std::is_invocable_v<T, std::string_view, xml_enc_string_view>
 	static constexpr void parse_attributes(std::string_view node, T func) {
 		auto s = node.substr(1, node.length() - 2);
 

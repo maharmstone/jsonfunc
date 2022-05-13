@@ -49,19 +49,17 @@ public:
 			namespaces.pop_back();
 
 		if (sv.front() != '<') { // text
-			auto pos = sv.find_first_of('<');
-
-			if (pos == std::string::npos) {
-				node = sv;
-				sv = "";
-			} else {
+			if (auto pos = sv.find_first_of('<'); pos != std::string::npos) {
 				node = sv.substr(0, pos);
 				sv = sv.substr(pos);
+			} else {
+				node = sv;
+				sv = "";
 			}
 
 			type = xml_node::whitespace;
 
-			for (auto c : sv) {
+			for (auto c : node) {
 				if (!is_whitespace(c)) {
 					type = xml_node::text;
 					break;
@@ -69,26 +67,22 @@ public:
 			}
 		} else {
 			if (sv.starts_with("<?")) {
-				auto pos = sv.find("?>");
-
-				if (pos == std::string::npos) {
-					node = sv;
-					sv = "";
-				} else {
+				if (auto pos = sv.find("?>"); pos != std::string::npos) {
 					node = sv.substr(0, pos + 2);
 					sv = sv.substr(pos + 2);
+				} else {
+					node = sv;
+					sv = "";
 				}
 
 				type = xml_node::processing_instruction;
 			} else if (sv.starts_with("</")) {
-				auto pos = sv.find_first_of('>');
-
-				if (pos == std::string::npos) {
-					node = sv;
-					sv = "";
-				} else {
+				if (auto pos = sv.find_first_of('>'); pos != std::string::npos) {
 					node = sv.substr(0, pos + 1);
 					sv = sv.substr(pos + 1);
+				} else {
+					node = sv;
+					sv = "";
 				}
 
 				type = xml_node::end_element;
@@ -114,14 +108,12 @@ public:
 
 				type = xml_node::cdata;
 			} else {
-				auto pos = sv.find_first_of('>');
-
-				if (pos == std::string::npos) {
-					node = sv;
-					sv = "";
-				} else {
+				if (auto pos = sv.find_first_of('>'); pos != std::string::npos) {
 					node = sv.substr(0, pos + 1);
 					sv = sv.substr(pos + 1);
+				} else {
+					node = sv;
+					sv = "";
 				}
 
 				type = xml_node::element;

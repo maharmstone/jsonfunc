@@ -277,6 +277,8 @@ text</g>
 )");
 static_assert(xml_pretty2("<a></a>") == "<a>\n</a>\n");
 static_assert(xml_pretty2("<?xml version=\"1.0\"?><a></a>") == "<?xml version=\"1.0\"?>\n<a>\n</a>\n");
+static_assert(xml_pretty2("<a>\n\n<b> a </b>\t\n</a>") == "<a>\n    <b> a </b>\n</a>\n");
+static_assert(xml_pretty2("<a>\n\n<b>  \t  </b>\t\n</a>") == "<a>\n    <b>\n    </b>\n</a>\n");
 
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;

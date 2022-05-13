@@ -185,7 +185,7 @@ extern "C" __declspec(dllexport) BSTR STRING_AGG(WCHAR* jsonw, WCHAR* sepw) noex
 	return bstr(ws);
 }
 
-static string xml_pretty2(string_view inu) {
+static constexpr string xml_pretty2(string_view inu) {
 	xml_reader r(inu);
 	string s;
 	string prefix;
@@ -256,6 +256,21 @@ static string xml_pretty2(string_view inu) {
 
 	return s;
 }
+
+static_assert(xml_pretty2("<a><b /><c att=\"value\">text</c><d><e></e></d><f>hel<b>lo wor</b>ld</f><g><h/>text</g></a>") == R"(<a>
+    <b />
+    <c att="value">text</c>
+    <d>
+        <e>
+        </e>
+    </d>
+    <f>hel<b>lo wor</b>ld</f>
+    <g>
+        <h/>
+text</g>
+</a>
+)");
+static_assert(xml_pretty2("<a></a>") == "<a>\n</a>\n");
 
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;

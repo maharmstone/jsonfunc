@@ -251,6 +251,17 @@ static constexpr string xml_pretty2(string_view inu) {
 				s += "\n";
 				break;
 
+			case xml_node::comment:
+				if (needs_newline) {
+					s += "\n";
+					needs_newline = false;
+				}
+
+				s += prefix;
+				s += r.raw();
+				s += "\n";
+				break;
+
 			default:
 				if (needs_newline) {
 					s += "\n";
@@ -283,6 +294,8 @@ static_assert(xml_pretty2("<?xml version=\"1.0\"?><a></a>") == "<?xml version=\"
 static_assert(xml_pretty2("<a>\n\n<b> a </b>\t\n</a>") == "<a>\n    <b> a </b>\n</a>\n");
 static_assert(xml_pretty2("<a>\n\n<b>  \t  </b>\t\n</a>") == "<a>\n    <b>\n    </b>\n</a>\n");
 static_assert(xml_pretty2("\xef\xbb\xbf<a>\n\n<b>  \t  </b>\t\n</a>") == "\xef\xbb\xbf<a>\n    <b>\n    </b>\n</a>\n"); // BOM
+static_assert(xml_pretty2("<a><!-- comment --><b></b></a>") == "<a>\n    <!-- comment -->\n    <b>\n    </b>\n</a>\n");
+static_assert(xml_pretty2("<a><!-- comment 1 --><b><!-- comment 2 --></b></a>") == "<a>\n    <!-- comment 1 -->\n    <b>\n        <!-- comment 2 -->\n    </b>\n</a>\n");
 
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;

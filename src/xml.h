@@ -26,6 +26,10 @@ public:
 		return sv.empty();
 	}
 
+	constexpr std::string_view raw() const {
+		return sv;
+	}
+
 	std::string decode() const;
 	bool cmp(std::string_view str) const;
 
@@ -145,13 +149,60 @@ public:
 		return type == xml_node::element && empty_tag;
 	}
 
-	void attributes_loop_raw(const std::function<bool(std::string_view local_name, xml_enc_string_view namespace_uri_raw,
-													xml_enc_string_view value_raw)>& func) const;
-													std::optional<xml_enc_string_view> get_attribute(std::string_view name, std::string_view ns = "") const;
-													xml_enc_string_view namespace_uri_raw() const;
-													std::string_view name() const;
-													std::string_view local_name() const;
-													std::string value() const;
+	template<typename T>
+	requires std::is_invocable_r_v<bool, T, std::string_view, std::string_view, xml_enc_string_view, xml_enc_string_view>
+	constexpr void attributes_loop_raw(T func) const {
+		if (type != xml_node::element)
+			return;
+
+		parse_attributes(node, [&](std::string_view name, xml_enc_string_view value_raw) {
+			auto colon = name.find_first_of(':');
+
+			if (colon == std::string::npos)
+				return func(name, "", xml_enc_string_view{}, value_raw);
+
+			auto prefix = name.substr(0, colon);
+
+			for (auto it = namespaces.rbegin(); it != namespaces.rend(); it++) {
+				for (const auto& v : *it) {
+					if (v.first == prefix)
+						return func(name.substr(colon + 1), prefix, v.second, value_raw);
+				}
+			}
+
+			return func(name.substr(colon + 1), prefix, xml_enc_string_view{}, value_raw);
+		});
+	}
+
+	std::optional<xml_enc_string_view> get_attribute(std::string_view name, std::string_view ns = "") const;
+	xml_enc_string_view namespace_uri_raw() const;
+
+	constexpr std::string_view name() const {
+		if (type != xml_node::element && type != xml_node::end_element)
+			return "";
+
+		auto tag = node.substr(type == xml_node::end_element ? 2 : 1);
+
+		tag.remove_suffix(1);
+
+		for (size_t i = 0; i < tag.length(); i++) {
+			if (is_whitespace(tag[i])) {
+				tag = tag.substr(0, i);
+				break;
+			}
+		}
+
+		if (is_empty()) {
+			while (!tag.empty() && (tag.back() == '/' || is_whitespace(tag.back()))) {
+				tag.remove_suffix(1);
+			}
+		}
+
+		return tag;
+	}
+
+	std::string_view local_name() const;
+	std::string value() const;
 
 	constexpr std::string_view raw() const {
 		return node;

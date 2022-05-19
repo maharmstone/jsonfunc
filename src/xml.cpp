@@ -28,7 +28,29 @@ static constexpr string xml_pretty2(string_view inu) {
 				if (has_text.empty() || !has_text.back())
 					s += prefix;
 
-				s += r.raw();
+				s += "<";
+				s += r.name();
+
+				r.attributes_loop_raw([&](string_view local_name, string_view prefix, xml_enc_string_view, xml_enc_string_view value_raw) -> bool {
+					s += " ";
+
+					if (!prefix.empty()) {
+						s += prefix;
+						s += ":";
+					}
+
+					s += local_name;
+					s += "=\"";
+					s += value_raw.raw();
+					s += "\"";
+
+					return true;
+				});
+
+				if (r.is_empty())
+					s += " /";
+
+				s += ">";
 
 				if (!r.is_empty()) {
 					prefix += "    ";
@@ -104,7 +126,7 @@ static_assert(xml_pretty2("<a><b /><c att=\"value\">text</c><d><e></e></d><f>hel
     </d>
     <f>hel<b>lo wor</b>ld</f>
     <g>
-        <h/>
+        <h />
 text</g>
 </a>
 )");
@@ -116,6 +138,12 @@ static_assert(xml_pretty2("\xef\xbb\xbf<a>\n\n<b>  \t  </b>\t\n</a>") == "\xef\x
 static_assert(xml_pretty2("<a><!-- comment --><b></b></a>") == "<a>\n    <!-- comment -->\n    <b>\n    </b>\n</a>\n");
 static_assert(xml_pretty2("<a><!-- comment 1 --><b><!-- comment 2 --></b></a>") == "<a>\n    <!-- comment 1 -->\n    <b>\n        <!-- comment 2 -->\n    </b>\n</a>\n");
 static_assert(xml_pretty2("a") == "a");
+static_assert(xml_pretty2("<c att=\"value\"></c>") == "<c att=\"value\">\n</c>\n");
+static_assert(xml_pretty2("<c ns:att=\"value\"></c>") == "<c ns:att=\"value\">\n</c>\n");
+static_assert(xml_pretty2("<ns:c att=\"value\"></ns:c>") == "<ns:c att=\"value\">\n</ns:c>\n");
+static_assert(xml_pretty2("<a/>") == "<a />\n");
+static_assert(xml_pretty2("<a />") == "<a />\n");
+static_assert(xml_pretty2("<a att1='foo' att2=\"bar\"/>") == "<a att1=\"foo\" att2=\"bar\" />\n");
 
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;

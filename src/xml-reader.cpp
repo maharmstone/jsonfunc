@@ -4,37 +4,13 @@
 
 using namespace std;
 
-void xml_reader::attributes_loop_raw(const function<bool(string_view local_name, xml_enc_string_view namespace_uri_raw,
-														xml_enc_string_view value_raw)>& func) const {
-	if (type != xml_node::element)
-		return;
-
-	parse_attributes(node, [&](string_view name, xml_enc_string_view value_raw) {
-		auto colon = name.find_first_of(':');
-
-		if (colon == string::npos)
-			return func(name, xml_enc_string_view{}, value_raw);
-
-		auto prefix = name.substr(0, colon);
-
-		for (auto it = namespaces.rbegin(); it != namespaces.rend(); it++) {
-			for (const auto& v : *it) {
-				if (v.first == prefix)
-					return func(name.substr(colon + 1), v.second, value_raw);
-			}
-		}
-
-		return func(name.substr(colon + 1), xml_enc_string_view{}, value_raw);
-	});
-}
-
 optional<xml_enc_string_view> xml_reader::get_attribute(string_view name, string_view ns) const {
 	if (type != xml_node::element)
 		return nullopt;
 
 	optional<xml_enc_string_view> xesv;
 
-	attributes_loop_raw([&](string_view local_name, xml_enc_string_view namespace_uri_raw,
+	attributes_loop_raw([&](string_view local_name, string_view, xml_enc_string_view namespace_uri_raw,
 							xml_enc_string_view value_raw) {
 		if (local_name == name && namespace_uri_raw.cmp(ns)) {
 			xesv = value_raw;
@@ -63,24 +39,6 @@ xml_enc_string_view xml_reader::namespace_uri_raw() const {
 	}
 
 	return {};
-}
-
-string_view xml_reader::name() const {
-	if (type != xml_node::element && type != xml_node::end_element)
-		return "";
-
-	auto tag = node.substr(type == xml_node::end_element ? 2 : 1);
-
-	tag.remove_suffix(1);
-
-	for (size_t i = 0; i < tag.length(); i++) {
-		if (is_whitespace(tag[i])) {
-			tag = tag.substr(0, i);
-			break;
-		}
-	}
-
-	return tag;
 }
 
 string_view xml_reader::local_name() const {

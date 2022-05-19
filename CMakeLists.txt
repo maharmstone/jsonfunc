@@ -11,7 +11,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(SRC_FILES src/jsonfunc.cpp
     src/git.cpp
     src/format-term.cpp
-    src/xml-reader.cpp)
+    src/xml-reader.cpp
+    src/xml.cpp)
 
 add_library(jsonfunc SHARED ${SRC_FILES})
 

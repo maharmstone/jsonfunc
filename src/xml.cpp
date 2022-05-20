@@ -4,6 +4,39 @@
 
 using namespace std;
 
+static constexpr string reescape_att(string_view sv) {
+	string s;
+
+	while (!sv.empty()) {
+		auto c = sv.front();
+
+		sv.remove_prefix(1);
+
+		if (c == '&') {
+			auto sc = sv.find_first_of(';');
+
+			if (sc == string::npos)
+				throw runtime_error("Unterminated entity.");
+
+			auto ent = sv.substr(0, sc);
+
+			if (ent == "apos")
+				s += "'";
+			else
+				s += "&" + string(ent) + ";";
+
+			// FIXME - decode decimal or hex references?
+
+			sv = sv.substr(ent.size() + 1);
+		} else if (c == '\"')
+			s += "&quot;";
+		else
+			s += c;
+	}
+
+	return s;
+}
+
 static constexpr string xml_pretty2(string_view inu) {
 	xml_reader r(inu);
 	string s;
@@ -41,7 +74,7 @@ static constexpr string xml_pretty2(string_view inu) {
 
 					s += local_name;
 					s += "=\"";
-					s += value_raw.raw();
+					s += reescape_att(value_raw.raw());
 					s += "\"";
 
 					return true;
@@ -144,6 +177,7 @@ static_assert(xml_pretty2("<ns:c att=\"value\"></ns:c>") == "<ns:c att=\"value\"
 static_assert(xml_pretty2("<a/>") == "<a />\n");
 static_assert(xml_pretty2("<a />") == "<a />\n");
 static_assert(xml_pretty2("<a att1='foo' att2=\"bar\"/>") == "<a att1=\"foo\" att2=\"bar\" />\n");
+static_assert(xml_pretty2("<a att1='&apos;\"' att2=\"'&quot;\"/>") == "<a att1=\"'&quot;\" att2=\"'&quot;\" />\n");
 
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;

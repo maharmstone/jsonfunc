@@ -115,6 +115,7 @@ static constexpr string xml_pretty2(string_view inu) {
 				break;
 
 			case xml_node::text:
+			case xml_node::cdata:
 				needs_newline = false;
 
 				if (!has_text.empty())
@@ -182,6 +183,7 @@ static_assert(xml_pretty2("<a/>") == "<a />\n");
 static_assert(xml_pretty2("<a />") == "<a />\n");
 static_assert(xml_pretty2("<a att1='foo' att2=\"bar\"/>") == "<a att1=\"foo\" att2=\"bar\" />\n");
 static_assert(xml_pretty2("<a att1='&apos;\"' att2=\"'&quot;\"/>") == "<a att1=\"'&quot;\" att2=\"'&quot;\" />\n");
+static_assert(xml_pretty2("<a><c><![CDATA[foo]]></c></a>") == "<a>\n    <c><![CDATA[foo]]></c>\n</a>\n");
 
 extern "C" __declspec(dllexport) BSTR XML_PRETTY(WCHAR* in) noexcept {
 	u16string ws;

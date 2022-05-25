@@ -38,12 +38,15 @@ static constexpr string reescape_att(string_view sv) {
 }
 
 static constexpr string xml_pretty2(string_view inu) {
-	xml_reader r(inu);
 	string s;
 	string prefix;
 	bool needs_newline = false;
 	vector<int> has_text;
 
+	if (inu.size() >= 3 && (uint8_t)inu[0] == 0xef && (uint8_t)inu[1] == 0xbb && (uint8_t)inu[2] == 0xbf) // BOM
+		inu = inu.substr(3);
+
+	xml_reader r(inu);
 	s.reserve(inu.length());
 
 	while (r.read()) {
@@ -167,7 +170,8 @@ static_assert(xml_pretty2("<a></a>") == "<a>\n</a>\n");
 static_assert(xml_pretty2("<?xml version=\"1.0\"?><a></a>") == "<?xml version=\"1.0\"?>\n<a>\n</a>\n");
 static_assert(xml_pretty2("<a>\n\n<b> a </b>\t\n</a>") == "<a>\n    <b> a </b>\n</a>\n");
 static_assert(xml_pretty2("<a>\n\n<b>  \t  </b>\t\n</a>") == "<a>\n    <b>\n    </b>\n</a>\n");
-static_assert(xml_pretty2("\xef\xbb\xbf<a>\n\n<b>  \t  </b>\t\n</a>") == "\xef\xbb\xbf<a>\n    <b>\n    </b>\n</a>\n"); // BOM
+static_assert(xml_pretty2("test<a>\n\n<b>  \t  </b>\t\n</a>") == "test<a>\n    <b>\n    </b>\n</a>\n");
+static_assert(xml_pretty2("\xef\xbb\xbf<a>\n\n<b>  \t  </b>\t\n</a>") == "<a>\n    <b>\n    </b>\n</a>\n"); // BOM
 static_assert(xml_pretty2("<a><!-- comment --><b></b></a>") == "<a>\n    <!-- comment -->\n    <b>\n    </b>\n</a>\n");
 static_assert(xml_pretty2("<a><!-- comment 1 --><b><!-- comment 2 --></b></a>") == "<a>\n    <!-- comment 1 -->\n    <b>\n        <!-- comment 2 -->\n    </b>\n</a>\n");
 static_assert(xml_pretty2("a") == "a");

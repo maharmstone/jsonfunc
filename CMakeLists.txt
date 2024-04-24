@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(jsonfunc)
+project(jsonfunc
+	LANGUAGES CXX)
+
+include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -39,4 +42,12 @@ endif()
 if(NOT MSVC)
     target_link_options(jsonfunc PUBLIC -static-libgcc)
 	target_compile_options(jsonfunc PUBLIC -Wall -Werror=cast-function-type -Wno-expansion-to-defined -Wunused-parameter -Wtype-limits -Wextra -Wconversion -fstrict-aliasing)
+else()
+	install(FILES $<TARGET_PDB_FILE:jsonfunc> DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
 endif()
+
+install(TARGETS jsonfunc
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    ARCHIVE EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+)

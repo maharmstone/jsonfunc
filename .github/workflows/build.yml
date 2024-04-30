@@ -10,7 +10,10 @@ jobs:
       - run: git clone ${{ github.server_url }}/${{ github.repository }} ${SHORT_SHA}
       - run: cd ${SHORT_SHA} && git checkout ${{ github.sha }}
       - run: mkdir nlohmann-json && cd nlohmann-json && wget -qO- https://www.burntcomma.com/packages/nlohmann-json-3.11.3-x86_64-pc-windows-msvc.tar.gz | tar -xz
-      - run: mkdir libgit2 && cd libgit2 && wget -qO- https://www.burntcomma.com/libgit2-1.1.0-x86_64-pc-windows-msvc.tar.gz | tar -xz
+      - run: mkdir libgit2 && cd libgit2 && wget -qO- https://www.burntcomma.com/packages/libgit2-1.6.4-x86_64-pc-windows-msvc.tar.gz | tar -xz
+      - run: mkdir libssh2 && cd libssh2 && wget -qO- https://www.burntcomma.com/packages/libssh2-1.11.0-x86_64-pc-windows-msvc.tar.gz | tar -xz
+      - run: mkdir pcre && cd pcre && wget -qO- https://www.burntcomma.com/packages/pcre-8.45-x86_64-pc-windows-msvc.tar.gz | tar -xz
+      - run: mkdir openssl && cd openssl && wget -qO- https://www.burntcomma.com/packages/openssl-3.3.0-x86_64-pc-windows-msvc.tar.gz | tar -xz
       - run: mkdir zlib && cd zlib && wget -qO- https://www.burntcomma.com/packages/zlib-1.3.1-x86_64-pc-windows-msvc.tar.gz | tar -xz
       - run: |
           cmake -DCMAKE_TOOLCHAIN_FILE=msvc-amd64.cmake \
@@ -32,8 +35,8 @@ jobs:
             -S ${SHORT_SHA} -B release-work && \
           cmake --build release-work --parallel `nproc` && \
           cmake --install release-work
-      - run: cp libgit2/debug/bin/libgit2.dll libgit2/bin/pcre.dll zlib/debug/bin/zlibd1.dll install/debug/bin/
-      - run: cp libgit2/bin/libgit2.dll libgit2/bin/pcre.dll zlib/bin/zlib1.dll install/bin/
+      - run: cp libgit2/debug/bin/git2.dll pcre/debug/bin/pcred.dll libssh2/debug/bin/libssh2.dll openssl/debug/bin/libcrypto-3-x64.dll zlib/debug/bin/zlibd1.dll install/debug/bin/
+      - run: cp libgit2/bin/git2.dll pcre/bin/pcre.dll libssh2/bin/libssh2.dll openssl/bin/libcrypto-3-x64.dll zlib/bin/zlib1.dll install/bin/
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}
